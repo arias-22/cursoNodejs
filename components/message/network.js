@@ -1,6 +1,7 @@
 const express = require('express');
 const response = require('../../network/response.js'); // se importa el modulo de respuestas que debe ser creado aparte para un mejor estructura del proyecto
 const router = express.Router();
+const controller = require("./controller.js");
 
 router.get('/', function(req, res){
 
@@ -19,11 +20,19 @@ router.post('/', function(req, res){
 	//console.log(req.query); //para ver las consultas hechas a traves de la url. ejemplo: http://localhost:3000/message?id=234
 	//res.send("Mensaje --" + req.body.text + "-- agregado"); //text seria el nombre de parametro que contiene el body
 	
-	if(req.query.error == "ok"){
+	controller.addMessage(req.body.user, req.body.message
+		).then((fullMessage) => {
+		response.success(req, res, fullMessage, 201);
+	}).catch(e => {
+		response.error(req, res, "Error por informacion invalida", 400, "Error en el controlador");
+	});
+
+	/*if(req.query.error == "ok"){
 		response.error(req, res, "Erorr inesperado", 500, "Es una simulacion de los errores");
 	}else{	
 		response.success(req,res,"Mensaje enviado",201);
 	}
+	*/
 
 });
 
