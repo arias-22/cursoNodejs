@@ -5,7 +5,7 @@ const controller = require("./controller.js");
 
 router.get('/', function(req, res){
 
-	res.header({
+	/*res.header({
 		"custom-header": "Valor personalizado",
 	}); //incluye en la respuesta del servidor una cabecera personalizada
 	
@@ -13,6 +13,12 @@ router.get('/', function(req, res){
 
 	response.success(req,res, "Lista de mensajes");
 	console.log(req.headers);//para ver las cabeceras de la peticion, como para saber desde donde viene una peticion
+*/
+controller.getMessages().then((messageList) => {
+	response.success(req, res, messageList, 200);
+}).catch(e => {
+	response.error(req, res, "Unexpected Error", 500, e );
+})
 });
 
 router.post('/', function(req, res){
