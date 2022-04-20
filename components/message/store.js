@@ -1,27 +1,41 @@
 const res = require("express/lib/response");
-const db = require("mongoose");
-const model = require("./model");
 
-db.Promise = global.Promise;
-db.connect("mongodb://db_user_nodejs_course:Facil123@cluster0-shard-00-00.jgenf.mongodb.net:27017,cluster0-shard-00-01.jgenf.mongodb.net:27017,cluster0-shard-00-02.jgenf.mongodb.net:27017/telegrom?ssl=true&replicaSet=atlas-wkgcig-shard-0&authSource=admin&retryWrites=true&w=majority", {
-    useNewUrlParser: true,
-});
-console.log("[db] conectada con exito");
+const model = require("./model");
 
 function addMessages(message){
     const myMessage = new model(message);
     myMessage.save();
 }
 
-async function getMessage(){
- const messages = await model.find();
+async function getMessage(filterUser){
+    let filter = {};
+    if (filterUser !== null){
+        filter = {user: filterUser};
+    }
+ const messages = await model.find(filter);
  return messages;
+}
+
+async function updateText(id, message){
+    const foundMessage = await model.findOne({
+        _id: id
+    });
+
+    foundMessage.message = message;
+    const newMessage = await foundMessage.save();
+    return newMessage;
+}
+
+ function removeMessage(id){
+    return model.deleteOne({
+        _id: id
+    });
 }
 
 module.exports = {
     add: addMessages,
     list: getMessage,
     //get
-    //update
-    //delete
+    updateText: updateText,
+    remove: removeMessage,
 }

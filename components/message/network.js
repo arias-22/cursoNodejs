@@ -14,7 +14,8 @@ router.get('/', function(req, res){
 	response.success(req,res, "Lista de mensajes");
 	console.log(req.headers);//para ver las cabeceras de la peticion, como para saber desde donde viene una peticion
 */
-controller.getMessages().then((messageList) => {
+const filterMessages = req.query.user || null;
+controller.getMessages(filterMessages).then((messageList) => {
 	response.success(req, res, messageList, 200);
 }).catch(e => {
 	response.error(req, res, "Unexpected Error", 500, e );
@@ -42,10 +43,25 @@ router.post('/', function(req, res){
 
 });
 
-router.delete('/', function(req, res){
-	res.status(201).send({'error':'ninguno', 'body':'Eliminado correctamente',}); //de esta manera se puede responder a la peticion con un estado y un objeto que puede contener informacion que queramos. puede ser cualquier tipo de respuesta
+router.delete('/:id', function(req, res){
+	//res.status(201).send({'error':'ninguno', 'body':'Eliminado correctamente',}); //de esta manera se puede responder a la peticion con un estado y un objeto que puede contener informacion que queramos. puede ser cualquier tipo de respuesta
 	//res.send();//tambien se puede enviar una respuesta vacia, denpendera de la accion que queramos realizar
 	//res.status(201).send()// tambien se puede enviar una respuesta vacia, pero con un estado
+	controller.deleteMessage(req.params.id).then(()=>{
+		response.success(req, res, `Mensaje ${req.params.id} eliminado`, 200);
+	}).catch(e => {
+		response.error(req, res, 'Error interno', 500, e);
+	})
+});
+
+router.patch( '/:id', function(req, res){
+	controller.updateMessage(req.params.id, req.body.message).then((data) => {
+		response.success(req, res, data, 200);
+
+	}).catch(e => {
+		response.error(req, res, "Error interno", 500, e);
+	})
+	
 });
 
 module.exports = router;
