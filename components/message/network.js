@@ -1,7 +1,12 @@
 const express = require('express');
+const multer = require('multer');
 const response = require('../../network/response.js'); // se importa el modulo de respuestas que debe ser creado aparte para un mejor estructura del proyecto
 const router = express.Router();
 const controller = require("./controller.js");
+
+const upload = multer({
+	dest: 'public/files/',
+});
 
 router.get('/', function(req, res){
 
@@ -14,20 +19,21 @@ router.get('/', function(req, res){
 	response.success(req,res, "Lista de mensajes");
 	console.log(req.headers);//para ver las cabeceras de la peticion, como para saber desde donde viene una peticion
 */
-const filterMessages = req.query.user || null;
-controller.getMessages(filterMessages).then((messageList) => {
-	response.success(req, res, messageList, 200);
-}).catch(e => {
+	const filterMessages = req.query.chat || null;
+	controller.getMessages(filterMessages)
+	.then((messageList) => {
+		response.success(req, res, messageList, 200);
+	}).catch(e => {
 	response.error(req, res, "Unexpected Error", 500, e );
-})
+	})
 });
 
-router.post('/', function(req, res){
+router.post('/', upload.single('file'), function(req, res){
 	//console.log(req.body); //para acceder a los parametros del body de la consulta
 	//console.log(req.query); //para ver las consultas hechas a traves de la url. ejemplo: http://localhost:3000/message?id=234
 	//res.send("Mensaje --" + req.body.text + "-- agregado"); //text seria el nombre de parametro que contiene el body
 	
-	controller.addMessage(req.body.user, req.body.message
+	controller.addMessage(req.body.chat, req.body.user, req.body.message, req.file
 		).then((fullMessage) => {
 		response.success(req, res, fullMessage, 201);
 	}).catch(e => {
